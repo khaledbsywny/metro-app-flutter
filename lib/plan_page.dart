@@ -11,7 +11,7 @@ class PlanPage extends StatelessWidget {
       ),
       body: Image.asset(
         'assets/images/plan.jpg',
-        width: double.infinity,
+        width: 600,
         height: double.infinity,
         fit: BoxFit.fill,
       ),

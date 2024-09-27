@@ -1,230 +1,185 @@
-// import 'package:flutter/material.dart';
-//
-// class OutPutScreen extends StatelessWidget {
-//   OutPutScreen({super.key});
-//   final lineController = TextEditingController();
-//   List<Station> line1Stations = [
-//     Station("Station 1"),
-//     Station("Station 2")
-//   ]; // Replace with your data
-//   List<Station> line2Stations = [Station("Station 3"), Station("Station 4")];
-//   List<Station> line3Stations = [Station("Station 5"), Station("Station 6")];
-//
-//   List<Station> selectedStations = [];
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       //backgroundColor: Color.black,
-//       body: SafeArea(
-//           child: Column(
-//         children: [
-//           InkWell(
-//             onTap: () {
-//               // Navigate to previous screen
-//               // Navigator.pop(context);
-//               Get.to(PlanPage(),
-//                   transition: Transition.fadeIn); // navigate to contact page
-//             },
-//             child: Image.asset(
-//               'assets/images/plan.jpg',
-//               width: double.infinity,
-//               height: 300,
-//               fit: BoxFit.contain,
-//             ),
-//           ),
-//           SizedBox(
-//             height: 60,
-//           ),
-//           Padding(
-//             padding: const EdgeInsets.all(8.0),
-//             child: DropdownMenu<String>(
-//               width: double.infinity,
-//               menuHeight: 400,
-//               enableSearch: false,
-//               enableFilter: false,
-//               requestFocusOnTap: true,
-//               hintText: 'Please select a line',
-//               controller: lineController,
-//               onSelected: (value) {
-//                 if (value == 'Line 1') {
-//                   setState(() {
-//                     selectedStations = line1Stations;
-//                   });
-//                 } else if (value == 'Line 2') {
-//                   setState(() {
-//                     selectedStations = line2Stations;
-//                   });
-//                 } else if (value == 'Line 3') {
-//                   setState(() {
-//                     selectedStations = line3Stations;
-//                   });
-//                 }
-//               },
-//               dropdownMenuEntries: [
-//                 DropdownMenuEntry(value: 'Line 1', label: 'Line 1'),
-//                 DropdownMenuEntry(value: 'Line 2', label: 'Line 2'),
-//                 DropdownMenuEntry(value: 'Line 3', label: 'Line 3'),
-//               ],
-//             ),
-//           ),
-//           if (selectedStations.isNotEmpty) ...[
-//             Padding(
-//               padding: const EdgeInsets.all(8.0),
-//               child: DropdownMenu<String>(
-//                 width: double.infinity,
-//                 menuHeight: 400,
-//                 enableSearch: true,
-//                 enableFilter: true,
-//                 requestFocusOnTap: true,
-//                 hintText: 'Please select a station',
-//                 controller: stationController,
-//                 onSelected: (value) {},
-//                 dropdownMenuEntries: selectedStations
-//                     .map((Station station) => DropdownMenuEntry(
-//                           value: station.name,
-//                           label: station.name,
-//                         ))
-//                     .toList(),
-//               ),
-//             ),
-//           ],
-//         ],
-//       )),
-//     );
-//   }
-// }
-//
-// class Station {
-//   final String name;
-//   Station(this.name);
-// }
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:newmetro/plan_page.dart';
+import 'package:get/get.dart'; // Import GetX for state management
+import 'package:smooth_page_indicator/smooth_page_indicator.dart'; // Import smooth_page_indicator package
 
-class OutPutScreen extends StatefulWidget {
-  @override
-  _OutPutScreenState createState() => _OutPutScreenState();
+
+class RouteController extends GetxController {
+  // Observable to track the current route index
+  var currentRouteIndex = 0.obs;
 }
 
-class _OutPutScreenState extends State<OutPutScreen> {
-  final lineController = TextEditingController();
-  List<Station> line1Stations = [
-    Station("Station 1"),
-    Station("Station 2")
-  ]; // Replace with your data
-  List<Station> line2Stations = [Station("Station 3"), Station("Station 4")];
-  List<Station> line3Stations = [Station("Station 5"), Station("Station 6")];
+class OutputActivity extends StatelessWidget {
+  final RouteController routeController = Get.put(RouteController());
 
-  List<Station> selectedStations = [];
+  final List<List<String>> allRoutes; // All routes
+  final List<String> bestRoute; // Best route
+  final String travelTime; // Travel time
+  final String ticketPrice; // Ticket price
+  final String numberOfStations; // Number of stations
+
+  // Constructor to receive data
+  OutputActivity({
+    required this.allRoutes,
+    required this.bestRoute,
+    required this.travelTime,
+    required this.ticketPrice,
+    required this.numberOfStations,
+  });
 
   @override
   Widget build(BuildContext context) {
+        final PageController pageController = PageController();
+
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text(
-          'Metro Masr',
-          style: TextStyle(color: Colors.grey),
-        ),
-        backgroundColor: Colors.grey[900],
-      ),
+      backgroundColor: const Color(0xFF333333), // Equivalent to #333
       body: SafeArea(
         child: Column(
           children: [
-            InkWell(
-              onTap: () {
-                // Navigate to previous screen
-                // Navigator.pop(context);
-                Get.to(PlanPage(),
-                    transition: Transition.fadeIn); // navigate to contact page
-              },
-              child: Image.asset(
-                'assets/images/plan.jpg',
-                width: double.infinity,
-                height: 300,
-                fit: BoxFit.contain,
-              ),
-            ),
-            SizedBox(
-              height: 60,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: DropdownMenu<String>(
-                width: double.infinity,
-                menuHeight: 400,
-                enableSearch: false,
-                enableFilter: false,
-                requestFocusOnTap: true,
-                hintText: 'Please select a line',
-                //hintText: TextStyle(color: Colors.white), // Hint text color
-                controller: lineController,
-                onSelected: (value) {
-                  setState(() {
-                    if (value == 'Line 1') {
-                      selectedStations = line1Stations;
-                    } else if (value == 'Line 2') {
-                      selectedStations = line2Stations;
-                    } else if (value == 'Line 3') {
-                      selectedStations = line3Stations;
-                    }
-                  });
-                },
-                dropdownMenuEntries: const [
-                  DropdownMenuEntry(value: 'Line 1', label: 'Line 1'),
-                  DropdownMenuEntry(value: 'Line 2', label: 'Line 2'),
-                  DropdownMenuEntry(value: 'Line 3', label: 'Line 3'),
-                ],
-              ),
-            ),
-            if (selectedStations.isNotEmpty) ...[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Card(
-                  color: Colors.grey[850],
-                  elevation: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Stations of the selected line:',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey),
-                        ),
-                        SizedBox(height: 10),
-                        ...selectedStations.map((station) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Text(
-                              station.name,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ],
+            // Back Arrow and Header Direction
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Back Arrow
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: InkWell(
+                    onTap: () {
+                      Get.back(); // Back navigation using Get
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white, // Box shadow color equivalent
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(Icons.arrow_back, color: Color(0xFF333333)),
                     ),
                   ),
                 ),
+              ],
+            ),
+        
+            SizedBox(height: 24.0),
+        
+            // Time, Stations, Price Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildInfoBox('Time', travelTime),
+                  _buildInfoBox('Stations', numberOfStations),
+                  _buildInfoBox('Price', ticketPrice),
+                ],
               ),
-            ],
+            ),
+        
+            SizedBox(height: 16.0),
+        
+            // Displaying the best route
+           // _buildRouteCard(bestRoute),
+        
+           // SizedBox(height: 16.0),
+        
+            // Expanded to allow scrolling for the page view
+            Expanded(
+              child: PageView.builder(
+                   controller: pageController,
+                itemCount: allRoutes.length,
+                itemBuilder: (context, index) {
+                  // Compare list content rather than the list object itself
+                 // if (allRoutes[index].join(',') != bestRoute.join(',')) {
+                    return _buildRouteCard(allRoutes[index]);
+                  //}
+                  //return SizedBox.shrink(); // Skip the best route
+                },
+              ),
+              
+            ),
+            SizedBox(height: 16.0),
+            SmoothPageIndicator(
+              controller: pageController,
+              count: allRoutes.length,
+              effect: WormEffect(
+                dotColor: Colors.grey,
+                activeDotColor: Colors.white,
+              ),
+              ),
           ],
         ),
       ),
     );
   }
-}
 
-class Station {
-  final String name;
-  Station(this.name);
+  // A helper method to build each info box (Time, Stations, Price)
+  Widget _buildInfoBox(String title, String value) {
+    return Container(
+      width: 100,
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 4,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 4.0),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // A helper method to build a route card for the current route
+  Widget _buildRouteCard(List<String> route) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: route.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Text(
+                    route[index],
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white70,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

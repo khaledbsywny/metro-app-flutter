@@ -1,7 +1,7 @@
 import 'package:newmetro/metro_line.dart';
 
 class Station {
-  final String name;
+  String name;
   final int line;
   final double latitude;
   final double longitude;

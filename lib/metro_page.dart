@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:newmetro/graph.dart';
+import 'package:newmetro/metro_line.dart';
+import 'package:newmetro/outPut_page.dart';
 import 'package:newmetro/station.dart';
 
 class Metropage extends StatelessWidget {
@@ -8,6 +12,11 @@ class Metropage extends StatelessWidget {
   final endStationController = TextEditingController();
   final showController = TextEditingController();
   final List<Station> allStations = [];
+  List<List<String>> allRoutes = [];
+  List<String> bestRoute = [];
+  int travelTime = 0, ticketPrice = 0, count = 0;
+  late Station startStation;
+  late Station endStation;
 
   // Defining stations for Line 1
   List<Station> line1Stations = [
@@ -148,6 +157,7 @@ class Metropage extends StatelessWidget {
     Station.withCoordinates(
         "Kit Kat", 3, 30.082529824365675, 31.227092969498086),
   ];
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -157,6 +167,7 @@ class Metropage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Metro Masr')),
+      backgroundColor: const Color(0xFF333333),
       body: SafeArea(
         child: Column(
           children: [
@@ -170,7 +181,9 @@ class Metropage extends StatelessWidget {
                 requestFocusOnTap: true,
                 hintText: 'please select start station',
                 controller: startStationController,
-                onSelected: (value) {},
+                onSelected: (value) {
+                  startStation = findStationByName(value!)!;
+                },
                 dropdownMenuEntries: allStations
                     .map((Station name) => DropdownMenuEntry(
                           value: name.name,
@@ -199,7 +212,9 @@ class Metropage extends StatelessWidget {
                 requestFocusOnTap: true,
                 hintText: 'please select end station',
                 controller: endStationController,
-                onSelected: (value) {},
+                onSelected: (value) {
+                  endStation = findStationByName(value!)!;
+                },
                 dropdownMenuEntries: allStations
                     .map((Station name) => DropdownMenuEntry(
                           value: name.name,
@@ -235,14 +250,124 @@ class Metropage extends StatelessWidget {
               height: 40,
             ),
             ElevatedButton(
-              onPressed: () {
-                print("The icon is clicked");
-              },
-              child: Text('find'),
+              onPressed: () => start(),
+              child: Text('Find'),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void start() {
+    print("startttttttttttttttttttttttttttttttt");
+    calc(); // Assuming calc() performs some necessary calculations
+
+    if (allRoutes == null || allRoutes.isEmpty) {
+      print('starttttttttt2');
+      return;
+    }
+
+    // Create a new List of Lists
+    List<List<String>> listOfLists =
+        allRoutes.map((route) => List<String>.from(route)).toList();
+
+    // Navigate to OutputActivity using GetX without context
+    if (allRoutes.isNotEmpty) {
+      print(listOfLists.toString());
+      print(bestRoute.toString());
+      print(ticketPrice.toString());
+      print(travelTime.toString());
+
+      Get.to(() => OutputActivity(
+            allRoutes: listOfLists,
+            bestRoute: bestRoute,
+            travelTime: travelTime.toString(),
+            ticketPrice: ticketPrice.toString(),
+            numberOfStations: count.toString(),
+          ));
+    } else {
+      Get.snackbar('Error', 'No valid route found',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  void calc() {
+    if (startStation == null || endStation == null) {
+      if (startStation == null) {
+        // Display a shake animation if the start station is not selected
+        _shakeAnimation(
+            startStationController); // Placeholder for your shake animation logic
+      }
+      if (endStation == null) {
+        // Display a shake animation if the end station is not selected
+        _shakeAnimation(
+            endStationController); // Placeholder for your shake animation logic
+      }
+      print("calc3333333333");
+      return;
+    }
+
+    // Check if the user selected the same station for start and end
+    if (startStation == endStation) {
+      Get.snackbar(
+          'error', 'You are already at the destination station: $startStation',
+          snackPosition: SnackPosition.BOTTOM);
+
+      if (startStation!.line != endStation!.line) {
+        Get.snackbar('error', 'You can take the stairs',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+      print("calc11111111111111111111111");
+      return;
+    }
+
+    MetroGraph metroGraph = MetroGraph();
+    metroGraph.findAllRoutes(startStation.name, endStation.name);
+
+    allRoutes=metroGraph.allRoutes;
+    print(allRoutes.toString());
+      //  metroGraph.allRoutes.map((route) => List<String>.from(route)).toList();
+    if (allRoutes.isEmpty) {
+      Get.snackbar('error', 'No valid  route found',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+
+    // Route in graph is sorted, so we take the first route as the best route
+    bestRoute = List<String>.from(allRoutes[0]);
+    count = bestRoute.length - 1;
+
+    // Calculate travel time and ticket price
+    travelTime = MetroLine.calculateTime(bestRoute);
+    ticketPrice = MetroLine.calculateTicketPrice(bestRoute);
+    print(travelTime.toString());
+
+  }
+
+  // Function to handle the shake animation (custom implementation needed)
+  void _shakeAnimation(TextEditingController controller) {
+    // Add your shake animation logic here (can use third-party animation libraries or custom code)
+    print('Shake animation triggered for ${controller.text}');
+  }
+
+  Station? findStationByName(String stationName) {
+    // Iterate over all line stations and check for a match
+    for (Station station in line1Stations) {
+      if (station.name == stationName) {
+        return station; // Return the station if found
+      }
+    }
+    for (Station station in line2Stations) {
+      if (station.name == stationName) {
+        return station; // Return the station if found
+      }
+    }
+    for (Station station in line3Stations) {
+      if (station.name == stationName) {
+        return station; // Return the station if found
+      }
+    }
+    print("calc2222222222222222222222");
+    return null; // Return null if no station found
   }
 }
